@@ -19,8 +19,10 @@
   const Styles = (props) => El('style', 
      `
       :root {
+        --body-background: white;
         --nav-hegth: 50px;
         --nav-color: #eb1b65;
+        --nav-color-hover: #d01a5b;
       }
 
       body, main {
@@ -29,20 +31,19 @@
         height: 100vh;
       }
 
-      h1,h2,h3 {
-        margin: 0px;
-        padding: 0px;
-      }
-
       body {
         display: flex;
         justify-content: center;
         flex-direction: column;
         align-items: center;
-        background: white;
+        background: var(--body-background);
         font-family: 'IBM Plex Sans', serif;
       }
 
+      h1,h2,h3 {
+        margin: 0px;
+        padding: 0px;
+      }
       main {
         max-width: 1600px;
       }
@@ -54,6 +55,10 @@
         padding: 0px;
         background: var(--nav-color);
         color: white;
+      }
+
+      nav:hover {
+        background-color: var(--nav-color-hover);
       }
 
       nav ul {
@@ -87,17 +92,15 @@
       }
 
       main > section {
-        height: 100%;
-        width: 100%;
         display: flex;
         justify-content: center;
       }
 
       main > section > h1 {
-        padding-top: 150px;
-        font-size: 4em;
+        padding-top: 125px;
+        font-size: 5em;
+        text-align: center;
       }
-
     `
   );
 
@@ -105,7 +108,7 @@
     return El('main', 
       Styles(),
       Nav({ links: state.links }),
-      El('section', El('h1', 'Labs')),
+      El('section', El('h1', 'Welcome to Web Lab')),
     );
   }
   
