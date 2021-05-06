@@ -4,3 +4,6 @@
 [submodule "event-worker"]
 	path = event-worker
 	url = https://github.com/AlvaroBernalG/event-worker
+[submodule "ts-promisify-event-emitter"]
+	path = ts-promisify-event-emitter
+	url = https://github.com/AlvaroBernalG/ts-promisify-event-emitter
