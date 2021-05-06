@@ -1,3 +1,6 @@
 [submodule "secret"]
 	path = secret
 	url = https://github.com/AlvaroBernalG/secret
+[submodule "event-worker"]
+	path = event-worker
+	url = https://github.com/AlvaroBernalG/event-worker
