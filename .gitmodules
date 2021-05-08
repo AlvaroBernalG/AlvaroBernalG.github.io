@@ -7,3 +7,6 @@
 [submodule "ts-promisify-event-emitter"]
 	path = ts-promisify-event-emitter
 	url = https://github.com/AlvaroBernalG/ts-promisify-event-emitter
+[submodule "alvarobg.com"]
+	path = alvarobg.com
+	url = https://github.com/AlvaroBernalG/alvarobg.com

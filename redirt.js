@@ -37,8 +37,21 @@
       );
     }
 
+    _.node = function isNode(node, name) {
+      return node && _.equalI(node.nodeName, name);
+    }
+
     return _;
   })();
+
+  function buildId() {
+    var counter = 0;
+    return function id() {
+      counter += 1;
+      return counter;
+    }
+  }
+  var id = buildId();
 
   function tagCustomElement(el) {
     el.CUSTOM_EL = 1;
@@ -46,17 +59,45 @@
   }
 
   function Render(node, state) {
+    var oldApp;
     return function RenderFn(fn) {
+      console.log('');
+      console.log('....Renering...');
+      var activeElement = document.activeElement;
+      var posCare = 0;
+      if (is.node(activeElement, 'INPUT')) {
+        posCare = activeElement.selectionStart;
+      }
       var res = fn(state);
       var app = res[0];
-      state = res[1];
+      var newState = res[1];
       node.innerHTML = '';
-      return node.appendChild(app(state, RenderFn))
+      var newApp = node.appendChild(app(newState, RenderFn))
+      if (activeElement.id){
+        var focusEl = newApp.querySelector('#'+activeElement.id);
+        if (is.node(activeElement,'INPUT')) {
+          focusEl.focus();
+          focusEl.setSelectionRange(posCare, posCare);
+        } else {
+          focusEl.focus();
+        }
+      } else {
+          if (is.node(activeElement, 'INPUT')) {
+            console.warn('Input element must contain an id attribute');
+          }
+      }
+      console.log('app', oldApp);
+      console.log('app state', state);
+      console.log('newapp ', newApp);
+      console.log('newapp state', newState);
+      oldApp = newApp;
+      state = newState;
+      return newApp;
     };
   }
 
   function setShadowRootCSS($el, css) {
-    const styles = $el.shadowRoot.querySelector('style');
+    var styles = $el.shadowRoot.querySelector('style');
     if (styles === null) {
       $el.shadowRoot.append(El('style', css))
     }else {
@@ -84,6 +125,11 @@
     }
   }
 
+  function attachAttributes($el, attributes) {
+    $el._props_ = attributes;
+    return $el;
+  }
+
   function El() {
     var tagName = arguments[0];
     var attributes = arguments[1];
@@ -100,7 +146,7 @@
       }
       var shadowOptions;
       if (attributes.shadow && attributes.shadow.options) {
-        shadowOptions = attributes.shadow.options;
+        ssshadowOptions = attributes.shadow.options;
       }else {
         shadowOptions = {mode: 'open'};
       }
@@ -109,7 +155,13 @@
       $el = document.createElement(tagName);
     }
 
+    var innerAttr = {
+      children: []
+    };
+
     if (is.string(attributes) || is.number(attributes)) {
+      innerAttr.children.push(attributes);
+      $el._props_ = innerAttr;
       if (is.webComp(tagName)) {
         return cssWrapper($el);
       }
@@ -118,11 +170,15 @@
     } else if (is.DOMElement(attributes) || is.func(attributes)) {
       for (var x = 1; x < arguments.length; x++) {
         var sibling = arguments[x];
+        var childNode;
         if (is.webComp(tagName)) {
-          $el.shadowRoot.append(is.func(sibling) ? sibling() : sibling);
+          childNode = is.func(sibling) ? sibling() : sibling;
+          $el.shadowRoot.append(childNode);
         }else {
-          $el.append(is.func(sibling) ? sibling() : sibling);
+          childNode = is.func(sibling) ? sibling() : sibling;
+          $el.append(childNode);
         }
+        innerAttr['children'].push(childNode._props_);
       }
       if (is.webComp(tagName)) {
         return cssWrapper($el); 
@@ -133,6 +189,7 @@
     for (var key in attributes) {
       if (attributes.hasOwnProperty(key)) {
         var value = attributes[key];
+        innerAttr[key] = value;
         } if (is.equalI(key, 'shadow') && is.webComp(tagName)) {
           var styles = value.styles;
           $el = setShadowRootCSS($el, styles);
@@ -162,6 +219,7 @@
         }
       }
     }
+
 
     if (is.webComp(tagName) && attributes['css'] === undefined) {
       return cssWrapper($el);
